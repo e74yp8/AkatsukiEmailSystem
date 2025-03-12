@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 from datetime import datetime
 import requests
 import googlesheet_util as gsutil
@@ -46,9 +47,16 @@ for sheet in data:
         exit(0)
 
 for sheet_id in range(len(data)):
-    for record in data[sheet_id]:
-        if record[paid_column[sheet_id]] == "TRUE" and record[email_verify_column[sheet_id]] != "已發送":
+    for record in data[sheet_id][1:]:
+        date = datetime.strptime(record[2], "%m/%d/%Y %H:%M:%S")
+        dateBefore = datetime(2025, 1, 20, 10,31,45) > date
+        dateAfter = datetime(2025, 1, 19, 0,0,0) < date
+        if record[paid_column[sheet_id]] == "TRUE" and record[email_verify_column[sheet_id]] != "已發送" and dateBefore and dateAfter:
             sending_list.append(record)
+
+
+# for i in sending_list:
+#     print(i)
 
 # 按時間排序
 sorted_sending_list = sorted(sending_list, key=lambda x: datetime.strptime(x[2], "%m/%d/%Y %H:%M:%S"))
@@ -63,12 +71,15 @@ for record in sorted_sending_list:
     # 更新ticket db
     id = []
     for code in codeList:
-        rsp = requests.get(f"http://localhost:8080/ticket/create/{code}/{email}")
+        rsp = requests.get(f"https://ticket-api.ketsuromoe.win/ticket/create/{code}/{email}")
         if rsp.status_code == 200:
             id.append(int(rsp.text))
-
+    if id[0] > 940:
+        print("已達到上限")
+        exit()
     # 發送email
     eutil.send_email(codeList, id, email)
 
     # 更新status
     gsutil.updateStatus(record[1], record[0], email_verify_column[record[1]] - 1)
+    time.sleep(1)

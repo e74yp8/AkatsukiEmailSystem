@@ -13,9 +13,9 @@ creds_path = os.path.join(current_dir, "credentials.json")
 creds = Credentials.from_service_account_file(creds_path, scopes=scopes)
 client = gspread.authorize(creds)
 
-sheet_id = ["1Rl8zBsh0ormOYK-eF8tUcIbzBt13zKj_52_A7q4Ca84",  # 日場門票
-            "1_FjLiQs5RchVxjsSaSJPN4Yig0reGai7aFYG7f4OELI",  # 套票
-            "1TWWcWdevDEFhfCyLCOnAs1WvRxCTl0XNokw1SFfBzpA"]  # 城大師生
+sheet_id = ["1Atdn51YA1fwYOJGK6tieY939RFUZDqh1uTnb9EbG_G4",  # 日場門票 # TODO: 檢查google sheet鏈接
+            "1DjjarTf4Bd8fBkzaWRTxvM71uU2tohJm2W5SOM34t4E",  # 套票
+            "1rM8Oc8xrvqvNQ1OxshxUnx_xEQwe5OUZlSLGFjC6YR4"]  # 城大師生
 
 
 def getData() -> list[list[list]]:

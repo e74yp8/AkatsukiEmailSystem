@@ -12,10 +12,18 @@ import logging
 if not os.path.exists("img_temp"):
     os.mkdir("img_temp")  # 生成temp目錄
 
+smtp = smtplib.SMTP(host="smtp.gmail.com", port=587, timeout=60)
+try:
+    smtp.ehlo()  # 驗證SMTP伺服器
+    smtp.starttls()  # 建立加密傳輸
+    smtp.login("fuyumatsuri2025.akatsuki@gmail.com", "")  # 登入寄件者gmail # TODO: smtp密碼
+except Exception as e:
+    logging.error("email初始化錯誤: %s", e)
+    exit()
 
 def send_email(codeSet: list[str], idList: list[int], email: str):
     content = MIMEMultipart()  # 建立MIMEMultipart物件
-    content["subject"] = "測試郵件"  # 郵件標題 # TODO: 補一下郵件標題
+    content["subject"] = "城大冬祭2025 日場 曉之祭 電子門票"  # 郵件標題
     content["from"] = "fuyumatsuri2025.akatsuki@gmail.com"  # 寄件者
     content["to"] = email  # 收件者
 
@@ -48,12 +56,9 @@ def send_email(codeSet: list[str], idList: list[int], email: str):
         qrcode_file.add_header('Content-ID', f'<img{i}>')  # 插入QR code
         content.attach(qrcode_file)
 
-    with smtplib.SMTP(host="smtp.gmail.com", port=587) as smtp:  # 設定SMTP伺服器
-        try:
-            smtp.ehlo()  # 驗證SMTP伺服器
-            smtp.starttls()  # 建立加密傳輸
-            smtp.login("fuyumatsuri2025.akatsuki@gmail.com", "wrsbnwtoognlqpit")  # 登入寄件者gmail # TODO: smtp密碼
-            smtp.send_message(content)  # 寄送郵件
-            logging.info(f"{qrcodeCount}個qrcode已發送到{email}")
-        except Exception as e:
-            logging.error("email發送發生錯誤: %s", e)
+    try:
+        smtp.send_message(content)  # 寄送郵件
+        logging.info(f"{qrcodeCount}個qrcode已發送到{email}")
+    except Exception as e:
+        logging.error("email發送發生錯誤: %s", e)
+        exit()
